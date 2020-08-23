@@ -1,6 +1,5 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.http import HttpResponseNotFound
 
 from .models import Directory, ElementDirectory
 from .serializers import DirectoryListSerializers, DirectoryDetailListSerializers
@@ -21,9 +20,21 @@ class DirectoryCreateView(APIView):
     # добавление справочника
     def post(self, requests):
         directory = DirectoryListSerializers(data=requests.data)
-        if directory.is_valid():
-            print("save")
-            directory.save()
+        if not directory.is_valid():
+            return Response(status=403)
+
+        directory.save()
+        return Response(status=201)
+
+
+class ElementDirectoryCreateView(APIView):
+    # добавление элемента в справочник
+    def post(self, requests):
+        element = DirectoryDetailListSerializers(data=requests.data)
+        if not element.is_valid():
+            return Response(status=403)
+
+        element.save()
         return Response(status=201)
 
 
@@ -46,7 +57,7 @@ class DirectoryDetailListView(APIView):
 
 
 class DirectoryVersionDetailListView(APIView):
-    # вывод элементов справочника
+    # вывод элементов справочника текущей версии
     def get(self, requests, pk, version, page):
         try:
             # наличие справочника с таким id
