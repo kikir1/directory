@@ -40,10 +40,30 @@ class ElementDirectoryCreateView(APIView):
 
 class DirectoryDetailListView(APIView):
     # вывод элементов справочника
-    def get(self, requests, pk, page):
+    def get(self, requests, id, page):
         try:
-            # наличие справочника с таким id
-            parent = Directory.objects.get(id=pk)
+            # поиск справочника с заданный id
+            parent = Directory.objects.get(directoryId=id)
+        except:
+            return Response(status=404)
+
+        elementsDirectory = ElementDirectory.objects.filter(parentId=parent)
+        serializer = DirectoryDetailListSerializers(elementsDirectory, many=True)
+
+        if len(serializer.data[(page - 1) * 10:(page - 1) * 10 + 11]):
+            return Response(serializer.data[(page - 1) * 10:(page - 1) * 10 + 11])
+        else:
+            return Response(status=404)
+
+
+class DirectoryCurrentVersionDetailListView(APIView):
+    # вывод элементов справочника текущей версии
+    from datetime import datetime
+    current_date = datetime.now().today().strftime("%Y-%m-%d")
+    def get(self, requests, id, page):
+        try:
+            # поиск справочника с заданный id и на текущую дату
+            parent = Directory.objects.filter(directoryId=id, date__lte=self.current_date).last()
         except:
             return Response(status=404)
 
@@ -57,11 +77,11 @@ class DirectoryDetailListView(APIView):
 
 
 class DirectoryVersionDetailListView(APIView):
-    # вывод элементов справочника текущей версии
-    def get(self, requests, pk, version, page):
+    # вывод элементов справочника заданной версии
+    def get(self, requests, id, version, page):
         try:
-            # наличие справочника с таким id
-            parent = Directory.objects.get(id=pk, version=version)
+            # поиск справочника с заданный id и на текущую дату
+            parent = Directory.objects.get(directoryId=id, version=version)
         except:
             return Response(status=404)
 
@@ -77,7 +97,9 @@ class DirectoryVersionDetailListView(APIView):
 class DirectoryDateListView(APIView):
     # вывод списка справочников на указанную дату
     def get(self, requests, date, page):
-        directorys = Directory.objects.filter(date=date)
+        directorys = Directory.objects.filter(date__lte=date)
+        print(type(directorys))
+        print(directorys)
         serializer = DirectoryListSerializers(directorys, many=True)
 
         if len(serializer.data[(page - 1) * 10:(page - 1) * 10 + 11]):

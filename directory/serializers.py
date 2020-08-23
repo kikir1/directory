@@ -7,7 +7,7 @@ class DirectoryListSerializers(serializers.ModelSerializer):
     # список справочников
     class Meta:
         model = Directory
-        fields = "__all__"
+        fields = ("directoryId", "name", "shortName", "description", "version", "date")
 
 
 class DirectoryDetailListSerializers(serializers.ModelSerializer):

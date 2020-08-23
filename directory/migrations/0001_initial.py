@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Directory',
             fields=[
-                ('id', models.IntegerField(primary_key=True, serialize=False)),
+                ('directoryId', models.IntegerField(serialize=False)),
                 ('name', models.TextField()),
                 ('shortName', models.CharField(blank=True, max_length=120)),
                 ('description', models.TextField(blank=True)),
